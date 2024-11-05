@@ -157,11 +157,6 @@ def my_function():
                     if url == "present" and greaterthan is "present":
                         if float(totaltime) >= float(greaterthan_value) and re.search(regex_value, field_1):
                             timing_metrics()
-
-                    elif greaterthan == "present" and url != "present":
-                        if float(totaltime) >= float(greaterthan_value):
-                            timing_metrics()
-
                     elif url == "present" and greaterthan != "present":
                         if re.search(regex_value, field_1):
                             timing_metrics()
@@ -179,13 +174,6 @@ def my_function():
                         if re.search(regex_value, field_1):
                             my_req_headers()
                             my_resp_headers()
-
-                    #else:
-                    #    print("Hell Yeah")
-                    #    if float(totaltime) >= float(greaterthan_value):
-                    #        my_req_headers()
-                    #        my_resp_headers()
-                    #        print("hello")
 
 
                 continue
