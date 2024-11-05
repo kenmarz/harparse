@@ -10,6 +10,8 @@ source ~/.bash_aliases
 harparse --help
 
 OUTPUT:
+
+
 This script helps parse json formatted HAR files
 
 options: 
