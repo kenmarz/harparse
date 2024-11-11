@@ -22,6 +22,6 @@ options:
 
 example: harparser example.com.har --url='favicon' --gt=1000
 
-The example returns the headers and timing for any url matching favicon whose total time is greater than 1000ms
+The example returns the headers and timing for any url matching favicon whith a total time greater than 1000ms
 
 
