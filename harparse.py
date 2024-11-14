@@ -184,6 +184,4 @@ def my_function():
 my_function()
 
 
-#        edit1_cookie = str.replace(str(cookies_yes), "u'name': u'", "")
-
 ### NEED TO MAKE SOME TIME TO COMPLETE ###
