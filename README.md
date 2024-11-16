@@ -17,8 +17,12 @@ This script helps parse json formatted HAR files
 options: 
 
 --url   (ie: --url=favicon) Search and return any url with a match for the given value
+
 --gt    (ie: --gt=1000) Returns any url response taking longer in milliseconds than the given value"
+
 --tt    Returns only the url timing breakdown (no headers)
+
+--cookies  Must be passed with --url to returns cookies for the matching url/value 
 
 example: harparser example.com.har --url='favicon' --gt=1000
 

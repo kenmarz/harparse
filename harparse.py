@@ -12,9 +12,10 @@ example=("\n"
         "\n"
         "options: \n"
         "\n"
-        "--url   (ie: --url=favicon) Search and return any url with a match for the given value\n"
-        '--gt    (ie: --gt=1000) Returns any url response taking longer in milliseconds than the given value"\n' 
-        "--tt    Returns only the url timing breakdown (no headers)\n"
+        "--url      (ie: --url=favicon) Search and return any url with a match for the given value\n"
+        "--gt       (ie: --gt=1000) Returns any url response taking longer in milliseconds than the given value\n" 
+        "--tt       Returns only the url timing breakdown (no headers)\n"
+        "--cookies  Must be passed with --url to returns cookies for the matching url/value \n"
         "\n"
         "example: harparser example.com.har --url='favicon' --gt=1000\n\n"
         "The example returns the headers and timing for any url matching favicon whose total time is greater than 1000ms\n"
@@ -32,8 +33,6 @@ if sys.argv[1] == "--help":
 
 if len(sys.argv) > 1:
     field_1 = sys.argv[1]
-
-
 
 
 with open(field_1, 'r') as f:
@@ -64,27 +63,19 @@ def my_function():
             else:
                 remote_server = "Empty"
 
+            global priority
             if "_priority" in entry:
                 priority = entry['_priority']
             else:
                 priority = "None"
  
-           # if re.match(r'H|L|M|h|l|m|V|v', entry['_priority']):
-           #     priority = entry['_priority']
-           # else:
-           #     priority = "NONE"
-
-            ##if not re.search(r'H|L|M|h|l|m', priority):
-                ##priority = "NONE"
 
 
             #function to separate request headers name/values and call condition requirement
             def my_req_headers():
-                print('\n============================================================\n')
-                print('RemoteServerIP:' + remote_server + '\n')
-                print('REQUEST HEADERS:')
-                print(field_1)
-                #print cookie
+                print('\n============================================================\n\n' +
+                      'RemoteServerIP:' + remote_server + '\n\n' + 'REQUEST HEADERS:' + field_1)
+
                 for header in req_headers:
                     req_header = header
                     req_header_name = req_header['name']
@@ -94,9 +85,7 @@ def my_function():
 
             #function to separate response headers name/values and call condition requirement
             def my_resp_headers():
-                print('\n')
-                print('RESPONSE HEADERS:')
-                print(status)
+                print('\n' + 'RESPONSE HEADERS:\n' + 'Status Code ' + str(status))
 
                 for header in resp_headers:
                     resp_header = header
@@ -105,29 +94,32 @@ def my_function():
                     resp_entries = resp_header_name + ":" + resp_header_value
                     print(resp_entries)
 
-                print('\n')
-                print('tt: ' + str(totaltime))
-                print('timings: ' + str(times) + '\n')
-                print('\n')
+                print('\n' + 'tt: ' + str(totaltime) + 'timings: ' + str(times) + '\n')
 
             def timing_metrics():
-                print('\n============================================================\n')
-                print('- RemoteServerIP:' + remote_server + "\n")
-                print("- url: " + field_1 + "\n\n" + '- tt: ' + str(totaltime))
-                print("- timings: " + str(times))
-                print('\n')
+                print('\n============================================================\n'
+                      '- RemoteServerIP:' + remote_server + "\n" +
+                      '- url: ' + field_1 + '\n' + '- tt: ' + str(totaltime) + '\n' +
+                      '- timings: ' + str(times)) + '\n\n' + 'Priority = ' + str(priority)
+
+            def return_cookies():
+                print('\n============================================================\n'
+                      '\n' + field_1 + '\n\n--cookie \"' + str(cookie)+ '\"\n')
 
 
+            #Capture and assign arguemnts
             global tt
             global url
             global greaterthan
             global regex_value
+            global cookie_value
             global stringoffields
             global greaterthan_value
 
 
             tt = "none"
             url = "none"
+            cookie_value = "none"
             greaterthan = "none"
             greaterthan_value = 0
 
@@ -139,7 +131,6 @@ def my_function():
             greaterthan_match = re.search(r'--gt=(\d+)',stringoffields)
             if greaterthan_match:
                 greaterthan_regex = (greaterthan_match.group())
-                #greaterthan_value = re.escape(greaterthan_regex[5:])
                 greaterthan_value = greaterthan_regex[5:]
                 greaterthan = "present"
                 
@@ -149,31 +140,54 @@ def my_function():
                 url = "present"
                 regex_value = re.escape(url_value[6:])
 
+            cookie_match = re.search (r'--cookies',stringoffields)
+            if cookie_match:
+                cookie_value = "present"
+
+
 
             #====================================================
 
 
-                if tt == "present": 
-                    if url == "present" and greaterthan is "present":
-                        if float(totaltime) >= float(greaterthan_value) and re.search(regex_value, field_1):
-                            timing_metrics()
-                    elif url == "present" and greaterthan != "present":
-                        if re.search(regex_value, field_1):
-                            timing_metrics()
-                    else:
+
+            if tt == "present": 
+                if url == "present" and greaterthan is "present":
+                    if float(totaltime) >= float(greaterthan_value) and re.search(regex_value, field_1):
                         timing_metrics()
+                elif url == "present" and greaterthan != "present":
+                    if re.search(regex_value, field_1):
+                        timing_metrics()
+                elif url != "present" and greaterthan == "present":
+                    if float(totaltime) >= float(greaterthan_value):
+                        timing_metrics()
+                else:
+                    timing_metrics()
+
 
                 
-                if tt != "present": 
-                    if url == "present" and greaterthan == "present":
-                        if float(totaltime) >= float(greaterthan_value) and re.search(regex_value, field_1):
-                            my_req_headers()
-                            my_resp_headers()
+            if tt != "present": 
+                if url == "present" and cookie_value == "present":
+                    if re.search(regex_value, field_1):
+                        return_cookies()
+                elif url == "present" and greaterthan == "present":
+                    if float(totaltime) >= float(greaterthan_value) and re.search(regex_value, field_1):
+                        my_req_headers()
+                        my_resp_headers()
 
-                    elif url == "present" and greaterthan != "present":
-                        if re.search(regex_value, field_1):
-                            my_req_headers()
-                            my_resp_headers()
+                elif url == "present" and greaterthan != "present":
+                    if re.search(regex_value, field_1):
+                        my_req_headers()
+                        my_resp_headers()
+
+                elif url != "present" and greaterthan == "present":
+                    if float(totaltime) >= float(greaterthan_value):
+                        my_req_headers()
+                        my_resp_headers()
+                else:
+                    my_req_headers()
+                    my_resp_headers()
+
+
 
 
                 continue
